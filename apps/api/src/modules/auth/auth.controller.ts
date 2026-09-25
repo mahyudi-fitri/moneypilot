@@ -1,31 +1,55 @@
-import type { Response } from 'express';
-import type { AuthRequest } from '../../middleware/auth.js';
-import * as authService from './auth.service.js';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  NotFoundException,
+  Post,
+  UseGuards,
+  UsePipes,
+} from '@nestjs/common';
+import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard.js';
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe.js';
+import { AuthService } from './auth.service.js';
+import {
+  loginSchema,
+  registerSchema,
+  type LoginInput,
+  type RegisterInput,
+} from './auth.schema.js';
 
-export async function register(req: AuthRequest, res: Response) {
-  const { user, token } = await authService.register(req.body);
-  res.status(201).json({ user, token });
-}
+@Controller('auth')
+export class AuthController {
+  constructor(private readonly authService: AuthService) {}
 
-export async function login(req: AuthRequest, res: Response) {
-  try {
-    const { user, token } = await authService.login(req.body);
-    res.json({ user, token });
-  } catch (err) {
-    if (err instanceof Error && err.message === 'INVALID_CREDENTIALS') {
-      return res.status(401).json({ error: 'Invalid email or password' });
-    }
-    throw err;
+  @Post('register')
+  @HttpCode(HttpStatus.CREATED)
+  @UsePipes(new ZodValidationPipe(registerSchema))
+  async register(@Body() body: RegisterInput) {
+    return this.authService.register(body);
   }
-}
 
-export async function logout(_req: AuthRequest, res: Response) {
-  // Stateless JWT — client discards the token. We return success.
-  res.json({ message: 'Logged out' });
-}
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
+  @UsePipes(new ZodValidationPipe(loginSchema))
+  async login(@Body() body: LoginInput) {
+    return this.authService.login(body);
+  }
 
-export async function me(req: AuthRequest, res: Response) {
-  const user = await authService.getMe(req.userId!);
-  if (!user) return res.status(404).json({ error: 'User not found' });
-  res.json({ user });
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  logout() {
+    // Stateless JWT — client discards the token. We return success.
+    return { message: 'Logged out' };
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async me(@CurrentUser() userId: string) {
+    const user = await this.authService.getMe(userId);
+    if (!user) throw new NotFoundException('User not found');
+    return { user };
+  }
 }

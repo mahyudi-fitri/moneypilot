@@ -1,59 +1,64 @@
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { prisma } from '../../prisma/client.js';
-import { config } from '../../config/index.js';
-import type { RegisterInput, LoginInput } from './auth.schema.js';
+import { PrismaService } from '../../prisma/prisma.service.js';
+import type { LoginInput, RegisterInput } from './auth.schema.js';
 
-function signToken(userId: string): string {
-  return jwt.sign({ sub: userId }, config.jwtSecret, {
-    expiresIn: config.jwtExpiresIn,
-  } as jwt.SignOptions);
-}
+@Injectable()
+export class AuthService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService
+  ) {}
 
-export async function register(input: RegisterInput) {
-  const existing = await prisma.user.findUnique({
-    where: { email: input.email },
-  });
-  if (existing) {
-    throw new Error('EMAIL_TAKEN');
+  private async signToken(userId: string): Promise<string> {
+    return this.jwtService.signAsync({ sub: userId });
   }
 
-  const passwordHash = await bcrypt.hash(input.password, 10);
-  const user = await prisma.user.create({
-    data: {
-      name: input.name,
-      email: input.email,
-      passwordHash,
-    },
-    select: { id: true, name: true, email: true },
-  });
+  async register(input: RegisterInput) {
+    const existing = await this.prisma.user.findUnique({
+      where: { email: input.email },
+    });
+    if (existing) {
+      throw new ConflictException('A record with this value already exists');
+    }
 
-  return { user, token: signToken(user.id) };
-}
+    const passwordHash = await bcrypt.hash(input.password, 10);
+    const user = await this.prisma.user.create({
+      data: {
+        name: input.name,
+        email: input.email,
+        passwordHash,
+      },
+      select: { id: true, name: true, email: true },
+    });
 
-export async function login(input: LoginInput) {
-  const user = await prisma.user.findUnique({
-    where: { email: input.email },
-  });
-  if (!user) {
-    throw new Error('INVALID_CREDENTIALS');
+    return { user, token: await this.signToken(user.id) };
   }
 
-  const valid = await bcrypt.compare(input.password, user.passwordHash);
-  if (!valid) {
-    throw new Error('INVALID_CREDENTIALS');
+  async login(input: LoginInput) {
+    const user = await this.prisma.user.findUnique({
+      where: { email: input.email },
+    });
+    if (!user) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    const valid = await bcrypt.compare(input.password, user.passwordHash);
+    if (!valid) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    return {
+      user: { id: user.id, name: user.name, email: user.email },
+      token: await this.signToken(user.id),
+    };
   }
 
-  return {
-    user: { id: user.id, name: user.name, email: user.email },
-    token: signToken(user.id),
-  };
-}
-
-export async function getMe(userId: string) {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { id: true, name: true, email: true, createdAt: true },
-  });
-  return user;
+  async getMe(userId: string) {
+    return this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, name: true, email: true, createdAt: true },
+    });
+  }
 }
