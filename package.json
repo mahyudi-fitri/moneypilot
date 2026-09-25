@@ -1,0 +1,17 @@
+{
+  "name": "moneypilot",
+  "private": true,
+  "version": "1.0.0",
+  "description": "MoneyPilot — Personal Banking Dashboard (demo/portfolio project)",
+  "scripts": {
+    "dev:web": "npm run dev --prefix apps/web",
+    "dev:api": "npm run dev --prefix apps/api",
+    "build:web": "npm run build --prefix apps/web",
+    "build:api": "npm run build --prefix apps/api",
+    "seed": "npm run seed --prefix apps/api",
+    "install:all": "npm install --prefix apps/api && npm install --prefix apps/web"
+  },
+  "workspaces": [
+    "apps/*"
+  ]
+}

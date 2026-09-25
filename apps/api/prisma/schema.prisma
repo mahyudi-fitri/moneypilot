@@ -1,0 +1,153 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  accounts     Account[]
+  cards        Card[]
+  loans        Loan[]
+  transactions Transaction[]
+}
+
+model Account {
+  id               String   @id @default(cuid())
+  userId           String
+  name             String
+  type             AccountType
+  accountNumberLast4 Int
+  currency         String   @default("USD")
+  balance          Decimal  @default(0)
+  status           AccountStatus @default(ACTIVE)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cards        Card[]
+  transactions Transaction[]
+
+  @@index([userId])
+}
+
+model Card {
+  id             String     @id @default(cuid())
+  userId         String
+  accountId      String
+  name           String
+  type           CardType
+  cardNumberLast4 Int
+  expiryMonth    Int
+  expiryYear     Int
+  limit          Decimal    @default(0)
+  currentSpending Decimal   @default(0)
+  status         CardStatus @default(ACTIVE)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account      Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@index([userId])
+}
+
+model Loan {
+  id                 String     @id @default(cuid())
+  userId             String
+  name               String
+  type               LoanType
+  principalAmount    Decimal
+  outstandingBalance Decimal
+  monthlyInstallment Decimal
+  rate               Decimal
+  nextPaymentDate    DateTime
+  status             LoanStatus @default(ACTIVE)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Transaction {
+  id             String           @id @default(cuid())
+  userId         String
+  accountId      String
+  cardId         String?
+  type           TransactionType
+  category       String
+  description    String
+  merchant       String
+  amount         Decimal
+  currency       String           @default("USD")
+  status         TransactionStatus @default(COMPLETED)
+  transactionDate DateTime
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  card    Card?   @relation(fields: [cardId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([accountId])
+}
+
+enum AccountType {
+  SAVINGS
+  CURRENT
+  INVESTMENT
+}
+
+enum AccountStatus {
+  ACTIVE
+  DORMANT
+  CLOSED
+}
+
+enum CardType {
+  DEBIT
+  CREDIT
+}
+
+enum CardStatus {
+  ACTIVE
+  FROZEN
+  EXPIRED
+}
+
+enum LoanType {
+  PERSONAL
+  CAR
+  HOME
+  EDUCATION
+}
+
+enum LoanStatus {
+  ACTIVE
+  CLOSED
+  DEFAULTED
+}
+
+enum TransactionType {
+  CREDIT
+  DEBIT
+}
+
+enum TransactionStatus {
+  COMPLETED
+  PENDING
+  FAILED
+}
