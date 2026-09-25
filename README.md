@@ -16,39 +16,40 @@ A full-stack personal banking web application built as a **demo/portfolio projec
 - lucide-react (icons)
 
 ### Backend
-- Node.js + Express
+- Node.js + NestJS
 - TypeScript
 - Prisma ORM
 - PostgreSQL
-- JWT authentication
+- JWT authentication (`@nestjs/jwt` + route guard)
 - bcrypt (password hashing)
-- Zod (request validation)
-- CORS + dotenv
+- Zod (request validation pipe)
+- `@nestjs/config` (environment configuration)
 
 ## Folder Structure
 
 ```
 moneypilot/
 ├── apps/
-│   ├── api/                    # Backend (Express + Prisma)
+│   ├── api/                    # Backend (NestJS + Prisma)
 │   │   ├── prisma/
 │   │   │   ├── schema.prisma   # Database models
 │   │   │   └── seed.ts         # Demo data seeder
 │   │   ├── src/
-│   │   │   ├── config/         # Environment config
-│   │   │   ├── middleware/     # Auth, validation, error handling
+│   │   │   ├── config/         # Environment configuration factory
+│   │   │   ├── common/         # Guards, pipes, filters, decorators
 │   │   │   ├── modules/
 │   │   │   │   ├── auth/       # Register, login, me, logout
-│   │   │   │   ├── accounts/   # Bank accounts CRUD
-│   │   │   │   ├── cards/      # Cards CRUD
-│   │   │   │   ├── loans/      # Loans CRUD
+│   │   │   │   ├── accounts/   # Bank accounts
+│   │   │   │   ├── cards/      # Cards
+│   │   │   │   ├── loans/      # Loans
 │   │   │   │   ├── transactions/ # Transactions with filters
 │   │   │   │   ├── dashboard/  # Dashboard summary
 │   │   │   │   └── users/      # User profile
-│   │   │   ├── prisma/         # Prisma client
-│   │   │   ├── app.ts          # Express app setup
-│   │   │   └── server.ts       # Server entry point
+│   │   │   ├── prisma/         # Prisma module + service
+│   │   │   ├── app.module.ts   # Root Nest module
+│   │   │   └── main.ts         # Application entry point
 │   │   ├── .env.example
+│   │   ├── nest-cli.json
 │   │   └── package.json
 │   │
 │   └── web/                    # Frontend (React + Vite)
