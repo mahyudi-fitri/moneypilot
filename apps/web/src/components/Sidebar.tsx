@@ -1,4 +1,7 @@
-import { NavLink } from 'react-router-dom';
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Wallet,
@@ -24,6 +27,8 @@ const navItems = [
 ];
 
 export default function Sidebar({ open, onClose }: SidebarProps) {
+  const pathname = usePathname() ?? '';
+
   return (
     <>
       {/* Mobile overlay */}
@@ -56,21 +61,19 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
         <nav className="flex-1 space-y-1 px-3 py-4">
           {navItems.map((item) => (
-            <NavLink
+            <Link
               key={item.to}
-              to={item.to}
+              href={item.to}
               onClick={onClose}
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'bg-emerald-500 text-white'
-                    : 'text-navy-200 hover:bg-navy-800 hover:text-white'
-                }`
-              }
+              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                pathname === item.to || pathname.startsWith(`${item.to}/`)
+                  ? 'bg-emerald-500 text-white'
+                  : 'text-navy-200 hover:bg-navy-800 hover:text-white'
+              }`}
             >
               <item.icon className="h-5 w-5" />
               {item.label}
-            </NavLink>
+            </Link>
           ))}
         </nav>
 

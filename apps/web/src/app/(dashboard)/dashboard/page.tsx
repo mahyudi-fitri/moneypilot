@@ -1,5 +1,7 @@
+'use client';
+
 import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { ReceiptText, ArrowUpRight, ArrowDownRight, Wallet, Landmark } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchDashboardSummary } from '@/store/dataSlice';
@@ -63,7 +65,7 @@ export default function DashboardPage() {
           <div className="mb-4 flex items-center justify-between">
             <h3 className="font-semibold text-navy-900">Recent Transactions</h3>
             <Link
-              to="/transactions"
+              href="/transactions"
               className="text-sm font-medium text-emerald-600 hover:text-emerald-700"
             >
               View all
@@ -115,7 +117,7 @@ export default function DashboardPage() {
           <div className="mb-4 flex items-center justify-between">
             <h3 className="font-semibold text-navy-900">Accounts</h3>
             <Link
-              to="/accounts"
+              href="/accounts"
               className="text-sm font-medium text-emerald-600 hover:text-emerald-700"
             >
               View all
@@ -147,7 +149,7 @@ export default function DashboardPage() {
         <div className="mb-4 flex items-center justify-between">
           <h3 className="font-semibold text-navy-900">Loans & Financing</h3>
           <Link
-            to="/loans"
+            href="/loans"
             className="text-sm font-medium text-emerald-600 hover:text-emerald-700"
           >
             View all

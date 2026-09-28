@@ -1,13 +1,15 @@
+'use client';
+
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import Link from 'next/link';
 import { ArrowLeft, Wallet, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import api from '@/api/client';
 import type { Account, Transaction } from '@/types';
 import { LoadingSpinner, ErrorState, EmptyState } from '@/components/States';
 import { formatCurrency, formatDate, maskAccountNumber } from '@/utils/format';
 
-export default function AccountDetailPage() {
-  const { id } = useParams<{ id: string }>();
+export default function AccountDetail({ accountId }: { accountId: string }) {
+  const id = accountId;
   const [account, setAccount] = useState<Account | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +32,7 @@ export default function AccountDetailPage() {
 
   return (
     <div className="space-y-6">
-      <Link to="/accounts" className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-navy-900">
+      <Link href="/accounts" className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-navy-900">
         <ArrowLeft className="h-4 w-4" /> Back to accounts
       </Link>
 

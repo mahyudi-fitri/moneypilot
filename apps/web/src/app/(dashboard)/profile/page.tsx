@@ -1,5 +1,7 @@
+'use client';
+
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { User as UserIcon, Mail, Calendar, LogOut, Shield } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { clearCredentials } from '@/store/authSlice';
@@ -9,7 +11,7 @@ import type { User } from '@/types';
 import { formatDate } from '@/utils/format';
 
 export default function ProfilePage() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const storedUser = useAppSelector((state) => state.auth.user);
   const [user, setUser] = useState<User | null>(storedUser);
@@ -23,7 +25,7 @@ export default function ProfilePage() {
   const handleLogout = () => {
     dispatch(clearCredentials());
     dispatch(clearData());
-    navigate('/login');
+    router.replace('/login');
   };
 
   if (!user) return null;

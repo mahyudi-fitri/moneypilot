@@ -1,5 +1,7 @@
+'use client';
+
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { Wallet, Plus } from 'lucide-react';
 import api from '@/api/client';
 import type { Account } from '@/types';
@@ -49,7 +51,7 @@ export default function AccountsPage() {
         {accounts.map((account) => (
           <Link
             key={account.id}
-            to={`/accounts/${account.id}`}
+            href={`/accounts/${account.id}`}
             className="group rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:shadow-md hover:border-emerald-200"
           >
             <div className="flex items-start justify-between">

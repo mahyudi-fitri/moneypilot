@@ -1,5 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { User } from '@/types';
+import { clearToken, setToken } from '@/lib/token';
 
 interface AuthState {
   user: User | null;
@@ -8,12 +9,12 @@ interface AuthState {
   error: string | null;
 }
 
-const token = localStorage.getItem('moneypilot_token');
-
+// Rendered on the server first, so the token is hydrated on the client by
+// <AuthBootstrap /> instead of being read at module evaluation time.
 const initialState: AuthState = {
   user: null,
-  token,
-  status: token ? 'idle' : 'idle',
+  token: null,
+  status: 'idle',
   error: null,
 };
 
@@ -26,14 +27,17 @@ const authSlice = createSlice({
       state.token = action.payload.token;
       state.status = 'succeeded';
       state.error = null;
-      localStorage.setItem('moneypilot_token', action.payload.token);
+      setToken(action.payload.token);
     },
     clearCredentials(state) {
       state.user = null;
       state.token = null;
       state.status = 'idle';
       state.error = null;
-      localStorage.removeItem('moneypilot_token');
+      clearToken();
+    },
+    hydrateToken(state, action: PayloadAction<string | null>) {
+      state.token = action.payload;
     },
     setAuthError(state, action: PayloadAction<string>) {
       state.error = action.payload;
@@ -48,6 +52,7 @@ const authSlice = createSlice({
 
 export const {
   setCredentials,
+  hydrateToken,
   clearCredentials,
   setAuthError,
   setAuthLoading,
