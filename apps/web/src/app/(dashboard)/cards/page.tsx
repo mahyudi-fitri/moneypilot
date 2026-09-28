@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { CreditCard, Snowflake, CheckCircle, XCircle } from 'lucide-react';
 import api from '@/api/client';

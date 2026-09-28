@@ -19,7 +19,7 @@ export function configuration(): { app: AppConfig } {
       port: parseInt(process.env.PORT || '4000', 10),
       jwtSecret,
       jwtExpiresIn: '7d',
-      clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
+      clientUrl: process.env.CLIENT_URL || 'http://localhost:3000',
       databaseUrl: process.env.DATABASE_URL || '',
     },
   };

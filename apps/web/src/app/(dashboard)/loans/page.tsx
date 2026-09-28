@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { Landmark, Calendar, DollarSign, Percent } from 'lucide-react';
 import api from '@/api/client';

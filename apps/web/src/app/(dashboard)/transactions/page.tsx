@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { Search, ReceiptText, ArrowUpRight, ArrowDownRight, Filter } from 'lucide-react';
 import api from '@/api/client';

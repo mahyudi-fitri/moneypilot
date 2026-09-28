@@ -7,12 +7,11 @@ A full-stack personal banking web application built as a **demo/portfolio projec
 ## Tech Stack
 
 ### Frontend
-- React + TypeScript
-- Vite
+- Next.js (App Router) + React + TypeScript
 - Tailwind CSS
 - Redux Toolkit (auth + dashboard state)
 - Axios (API client with JWT interceptor)
-- React Router
+- Next.js middleware + server-side auth guards for protected routes
 - lucide-react (icons)
 
 ### Backend
@@ -52,15 +51,23 @@ moneypilot/
 │   │   ├── nest-cli.json
 │   │   └── package.json
 │   │
-│   └── web/                    # Frontend (React + Vite)
+│   └── web/                    # Frontend (Next.js App Router)
 │       ├── src/
+│       │   ├── app/            # App Router routes
+│       │   │   ├── (auth)/     # /login, /register (redirects when signed in)
+│       │   │   ├── (dashboard)/# Protected /dashboard, /accounts, /accounts/[id],
+│       │   │   │               #   /cards, /loans, /transactions, /profile
+│       │   │   ├── layout.tsx  # Root layout + Redux providers
+│       │   │   └── page.tsx    # Redirects / → /dashboard
 │       │   ├── api/            # Axios client + auth API
-│       │   ├── components/     # Sidebar, TopBar, StatCard, States
-│       │   ├── pages/          # Login, Register, Dashboard, etc.
+│       │   ├── components/     # Sidebar, TopBar, StatCard, States, shell
+│       │   ├── lib/            # Token cookie helpers + server auth guards
+│       │   ├── middleware.ts   # Route protection (replaces ProtectedRoute)
 │       │   ├── store/          # Redux Toolkit slices
 │       │   ├── types/          # TypeScript types
 │       │   └── utils/          # Formatting helpers
 │       ├── .env.example
+│       ├── next.config.mjs
 │       └── package.json
 │
 ├── docker-compose.yml          # PostgreSQL container
@@ -138,7 +145,7 @@ cd apps/web
 npm run dev
 ```
 
-The frontend runs on `http://localhost:5173`.
+The frontend runs on `http://localhost:3000`.
 
 ## Demo Login
 
